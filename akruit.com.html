@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Akruit - Innovative Web & App Development</title>
+    
+    <!-- Tailwind CSS for modern styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Three.js for 3D background animation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <!-- Lucide Icons for clean, modern icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Google Fonts: Inter for a clean, modern look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* Define a custom theme with a lighter dark palette */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #242424; /* Lighter dark background */
+            color: #E0E0E0; /* Off-white for readability */
+            overflow-x: hidden;
+        }
+
+        /* Custom styles for the 3D background canvas */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.7; /* Adjusted for particle visibility */
+        }
+
+        /* Gradient text for the hero section headline */
+        .gradient-text {
+            background: linear-gradient(45deg, #A8E063, #56AB2F);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Styles for scroll-triggered animations */
+        .scroll-animate {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .scroll-animate.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Custom glassmorphism effect for cards - adjusted for lighter theme */
+        .glass-card {
+            background: rgba(50, 50, 50, 0.4);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+        }
+        
+        .glass-card:hover {
+            background: rgba(60, 60, 60, 0.6);
+            border: 1px solid rgba(168, 224, 99, 0.3);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- The 3D background canvas will be rendered here -->
+    <canvas id="bg-canvas"></canvas>
+
+    <div class="relative isolate overflow-hidden">
+        <!-- Header -->
+        <header class="absolute inset-x-0 top-0 z-50">
+            <nav class="flex items-center justify-between p-6 lg:px-8" aria-label="Global">
+                <div class="flex lg:flex-1">
+                    <a href="#" class="-m-1.5 p-1.5">
+                        <span class="sr-only">Akruit</span>
+                        <img class="h-8 w-auto" src="WhatsApp Image 2025-08-31 at 10.41.41 PM.jpg" alt="Akruit Logo">
+                    </a>
+                </div>
+                <div class="flex lg:hidden">
+                    <button type="button" id="mobile-menu-button" class="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-400">
+                        <span class="sr-only">Open main menu</span>
+                        <i data-lucide="menu" class="h-6 w-6"></i>
+                    </button>
+                </div>
+                <div class="hidden lg:flex lg:gap-x-12">
+                    <a href="#home" class="text-sm font-semibold leading-6 text-gray-200 hover:text-[#A8E063] transition-colors">Home</a>
+                    <a href="#services" class="text-sm font-semibold leading-6 text-gray-200 hover:text-[#A8E063] transition-colors">Services</a>
+                    <a href="#projects" class="text-sm font-semibold leading-6 text-gray-200 hover:text-[#A8E063] transition-colors">Projects</a>
+                    <a href="#about" class="text-sm font-semibold leading-6 text-gray-200 hover:text-[#A8E063] transition-colors">About</a>
+                    <a href="#contact" class="text-sm font-semibold leading-6 text-gray-200 hover:text-[#A8E063] transition-colors">Contact</a>
+                </div>
+            </nav>
+            <!-- Mobile menu, show/hide based on menu open state. -->
+            <div id="mobile-menu" class="hidden" role="dialog" aria-modal="true">
+                <div class="fixed inset-0 z-50"></div>
+                <div class="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-[#242424] px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-white/10">
+                    <div class="flex items-center justify-between">
+                        <a href="#" class="-m-1.5 p-1.5">
+                            <span class="sr-only">Akruit</span>
+                            <img class="h-8 w-auto" src="WhatsApp Image 2025-08-31 at 10.41.41 PM.jpg" alt="Akruit Logo">
+                        </a>
+                        <button type="button" id="close-mobile-menu-button" class="-m-2.5 rounded-md p-2.5 text-gray-400">
+                            <span class="sr-only">Close menu</span>
+                            <i data-lucide="x" class="h-6 w-6"></i>
+                        </button>
+                    </div>
+                    <div class="mt-6 flow-root">
+                        <div class="-my-6 divide-y divide-gray-500/25">
+                            <div class="space-y-2 py-6">
+                                <a href="#home" class="mobile-nav-link -mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-200 hover:bg-gray-800">Home</a>
+                                <a href="#services" class="mobile-nav-link -mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-200 hover:bg-gray-800">Services</a>
+                                <a href="#projects" class="mobile-nav-link -mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-200 hover:bg-gray-800">Projects</a>
+                                <a href="#about" class="mobile-nav-link -mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-200 hover:bg-gray-800">About</a>
+                                <a href="#contact" class="mobile-nav-link -mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-200 hover:bg-gray-800">Contact</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Hero Section -->
+        <main id="home" class="relative px-6 lg:px-8">
+            <div class="mx-auto max-w-3xl pt-40 pb-32 sm:pt-48 sm:pb-40 text-center">
+                <h1 class="text-4xl font-bold tracking-tight text-white sm:text-6xl">
+                    We Build <span class="gradient-text">Digital Experiences</span> That Inspire
+                </h1>
+                <p class="mt-6 text-lg leading-8 text-gray-300">
+                    From intuitive mobile apps to powerful web platforms, we transform your vision into reality with cutting-edge technology and creative excellence.
+                </p>
+                <div class="mt-10 flex items-center justify-center gap-x-6">
+                    <a href="#contact" class="rounded-md bg-gradient-to-r from-[#A8E063] to-[#56AB2F] px-4 py-2.5 text-sm font-semibold text-black shadow-sm hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#A8E063] transition-opacity">
+                        Get a Free Quote
+                    </a>
+                    <a href="#services" class="text-sm font-semibold leading-6 text-gray-200">Our Services <span aria-hidden="true">→</span></a>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Services Section -->
+    <section id="services" class="py-24 sm:py-32">
+        <div class="mx-auto max-w-7xl px-6 lg:px-8">
+            <div class="mx-auto max-w-2xl lg:text-center scroll-animate">
+                <h2 class="text-base font-semibold leading-7 gradient-text">What We Do</h2>
+                <p class="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl">Fueling Brand Growth Through Complete Digital Solutions</p>
+                <p class="mt-6 text-lg leading-8 text-gray-300">
+                    We offer a comprehensive suite of services designed to build, launch, and grow your digital presence.
+                </p>
+            </div>
+            <div class="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
+                <dl class="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-3">
+                    <div class="flex flex-col p-8 glass-card scroll-animate transition-all duration-300">
+                        <dt class="flex items-center gap-x-3 text-base font-semibold leading-7 text-white">
+                            <i data-lucide="smartphone" class="h-8 w-8 flex-none text-[#A8E063]"></i>
+                            App Development
+                        </dt>
+                        <dd class="mt-4 flex flex-auto flex-col text-base leading-7 text-gray-300">
+                            <p class="flex-auto">We build beautiful, high-performance native and cross-platform mobile applications for iOS and Android that engage your users.</p>
+                        </dd>
+                    </div>
+                    <div class="flex flex-col p-8 glass-card scroll-animate transition-all duration-300" style="transition-delay: 150ms;">
+                        <dt class="flex items-center gap-x-3 text-base font-semibold leading-7 text-white">
+                            <i data-lucide="globe" class="h-8 w-8 flex-none text-[#A8E063]"></i>
+                            Web Development
+                        </dt>
+                        <dd class="mt-4 flex flex-auto flex-col text-base leading-7 text-gray-300">
+                            <p class="flex-auto">From corporate websites to complex web applications and e-commerce platforms, we deliver fast, secure, and scalable solutions.</p>
+                        </dd>
+                    </div>
+                    <div class="flex flex-col p-8 glass-card scroll-animate transition-all duration-300" style="transition-delay: 300ms;">
+                        <dt class="flex items-center gap-x-3 text-base font-semibold leading-7 text-white">
+                            <i data-lucide="pen-tool" class="h-8 w-8 flex-none text-[#A8E063]"></i>
+                            UI/UX Design
+                        </dt>
+                        <dd class="mt-4 flex flex-auto flex-col text-base leading-7 text-gray-300">
+                            <p class="flex-auto">Our user-centric design process focuses on creating intuitive, aesthetically pleasing interfaces that enhance user satisfaction and drive conversions.</p>
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects" class="py-24 sm:py-32">
+        <div class="mx-auto max-w-7xl px-6 lg:px-8">
+            <div class="mx-auto max-w-2xl text-center scroll-animate">
+                <h2 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">Our Successful Projects</h2>
+                <p class="mt-6 text-lg leading-8 text-gray-300">
+                    We're proud of the work we do. Here's a selection of projects that showcase our capabilities and the results we've delivered.
+                </p>
+            </div>
+            <div class="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-x-8 gap-y-20 lg:mx-0 lg:max-w-none lg:grid-cols-3">
+                <article class="flex flex-col items-start justify-between glass-card p-4 scroll-animate transition-transform duration-300 hover:scale-105">
+                    <div class="relative w-full">
+                        <img src="https://placehold.co/600x400/282828/FFF?text=Fintech+App" alt="Project 1" class="aspect-[16/9] w-full rounded-lg bg-gray-100 object-cover sm:aspect-[2/1] lg:aspect-[3/2]">
+                        <div class="absolute inset-0 rounded-lg ring-1 ring-inset ring-gray-900/10"></div>
+                    </div>
+                    <div class="max-w-xl p-4">
+                        <h3 class="mt-3 text-lg font-semibold leading-6 text-white group-hover:text-gray-600">
+                            <a href="#"><span class="absolute inset-0"></span>NextGen Fintech App</a>
+                        </h3>
+                        <p class="mt-5 text-sm leading-6 text-gray-400">A revolutionary mobile banking app with a focus on user experience and security.</p>
+                    </div>
+                </article>
+                <article class="flex flex-col items-start justify-between glass-card p-4 scroll-animate transition-transform duration-300 hover:scale-105" style="transition-delay: 150ms;">
+                    <div class="relative w-full">
+                        <img src="https://placehold.co/600x400/282828/FFF?text=E-commerce" alt="Project 2" class="aspect-[16/9] w-full rounded-lg bg-gray-100 object-cover sm:aspect-[2/1] lg:aspect-[3/2]">
+                        <div class="absolute inset-0 rounded-lg ring-1 ring-inset ring-gray-900/10"></div>
+                    </div>
+                    <div class="max-w-xl p-4">
+                        <h3 class="mt-3 text-lg font-semibold leading-6 text-white group-hover:text-gray-600">
+                            <a href="#"><span class="absolute inset-0"></span>EcoStyle Marketplace</a>
+                        </h3>
+                        <p class="mt-5 text-sm leading-6 text-gray-400">An e-commerce platform for sustainable fashion brands, built for scalability and performance.</p>
+                    </div>
+                </article>
+                <article class="flex flex-col items-start justify-between glass-card p-4 scroll-animate transition-transform duration-300 hover:scale-105" style="transition-delay: 300ms;">
+                    <div class="relative w-full">
+                        <img src="https://placehold.co/600x400/282828/FFF?text=SaaS+Platform" alt="Project 3" class="aspect-[16/9] w-full rounded-lg bg-gray-100 object-cover sm:aspect-[2/1] lg:aspect-[3/2]">
+                        <div class="absolute inset-0 rounded-lg ring-1 ring-inset ring-gray-900/10"></div>
+                    </div>
+                    <div class="max-w-xl p-4">
+                        <h3 class="mt-3 text-lg font-semibold leading-6 text-white group-hover:text-gray-600">
+                            <a href="#"><span class="absolute inset-0"></span>ConnectSphere CRM</a>
+                        </h3>
+                        <p class="mt-5 text-sm leading-6 text-gray-400">A SaaS platform designed to streamline customer relationship management for small businesses.</p>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-24 sm:py-32">
+        <div class="mx-auto max-w-7xl px-6 lg:px-8">
+            <div class="mx-auto grid max-w-2xl grid-cols-1 items-start gap-x-8 gap-y-16 sm:gap-y-24 lg:mx-0 lg:max-w-none lg:grid-cols-2">
+                <div class="lg:pr-4 scroll-animate">
+                    <div class="relative overflow-hidden rounded-3xl bg-gray-900 px-6 pb-9 pt-64 shadow-2xl sm:px-12 lg:px-8 lg:pb-8 lg:pt-80">
+                        <img class="absolute inset-0 h-full w-full object-cover" src="https://placehold.co/800x1000/282828/FFF?text=Our+Team" alt="Team photo">
+                    </div>
+                </div>
+                <div class="scroll-animate" style="transition-delay: 150ms;">
+                    <div class="text-base leading-7 text-gray-400 lg:max-w-lg">
+                        <p class="text-base font-semibold leading-7 gradient-text">About Us</p>
+                        <h2 class="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl">We are a Team of Passionate Creators</h2>
+                        <div class="max-w-xl">
+                            <p class="mt-6">We are a collective of developers, designers, and strategists driven by a shared passion for technology and innovation. We believe that great software is born from collaboration, expertise, and a relentless focus on the end-user. Our mission is to partner with businesses to create digital products that are not only functional and beautiful but also deliver tangible, measurable results.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-24 sm:py-32">
+        <div class="mx-auto max-w-7xl px-6 lg:px-8">
+            <div class="mx-auto max-w-2xl text-center scroll-animate">
+                <h2 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">Get In Touch</h2>
+                <p class="mt-2 text-lg leading-8 text-gray-300">Have a project in mind? We'd love to hear about it. Fill out the form below, and we'll get back to you shortly.</p>
+            </div>
+            <form id="contact-form" class="mx-auto mt-16 max-w-xl sm:mt-20">
+                <div class="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2">
+                    <div class="scroll-animate">
+                        <label for="name" class="block text-sm font-semibold leading-6 text-white">Full Name</label>
+                        <div class="mt-2.5">
+                            <input type="text" name="name" id="name" required class="block w-full rounded-md border-0 bg-white/10 px-3.5 py-2 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-[#A8E063] sm:text-sm sm:leading-6">
+                        </div>
+                    </div>
+                    <div class="scroll-animate" style="transition-delay: 150ms;">
+                        <label for="email" class="block text-sm font-semibold leading-6 text-white">Email</label>
+                        <div class="mt-2.5">
+                            <input type="email" name="email" id="email" required class="block w-full rounded-md border-0 bg-white/10 px-3.5 py-2 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-[#A8E063] sm:text-sm sm:leading-6">
+                        </div>
+                    </div>
+                    <div class="sm:col-span-2 scroll-animate" style="transition-delay: 300ms;">
+                        <label for="message" class="block text-sm font-semibold leading-6 text-white">Message</label>
+                        <div class="mt-2.5">
+                            <textarea name="message" id="message" rows="4" required class="block w-full rounded-md border-0 bg-white/10 px-3.5 py-2 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-[#A8E063] sm:text-sm sm:leading-6"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-10 scroll-animate" style="transition-delay: 450ms;">
+                    <button type="submit" class="block w-full rounded-md bg-gradient-to-r from-[#A8E063] to-[#56AB2F] px-3.5 py-2.5 text-center text-sm font-semibold text-black shadow-sm hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#A8E063] transition-opacity">Send Message</button>
+                </div>
+                <p id="form-status" class="mt-4 text-center text-sm"></p>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-black/30">
+        <div class="mx-auto max-w-7xl overflow-hidden px-6 py-12 lg:px-8">
+            <nav class="-mb-6 columns-2 sm:flex sm:justify-center sm:space-x-12" aria-label="Footer">
+                <div class="pb-6"><a href="#home" class="text-sm leading-6 text-gray-400 hover:text-white">Home</a></div>
+                <div class="pb-6"><a href="#services" class="text-sm leading-6 text-gray-400 hover:text-white">Services</a></div>
+                <div class="pb-6"><a href="#projects" class="text-sm leading-6 text-gray-400 hover:text-white">Projects</a></div>
+                <div class="pb-6"><a href="#about" class="text-sm leading-6 text-gray-400 hover:text-white">About</a></div>
+                <div class="pb-6"><a href="#contact" class="text-sm leading-6 text-gray-400 hover:text-white">Contact</a></div>
+            </nav>
+            <p class="mt-10 text-center text-xs leading-5 text-gray-500">&copy; 2025 Akruit. All rights reserved.</p>
+        </div>
+    </footer>
+
+
+    <script type="module">
+        // Firebase Imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        // Firebase Setup
+        let app, db, auth, userId;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+        try {
+            if (typeof __firebase_config !== 'undefined') {
+                const firebaseConfig = JSON.parse(__firebase_config);
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                setLogLevel('debug');
+
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                userId = auth.currentUser?.uid;
+                console.log("Firebase initialized and user authenticated. User ID:", userId);
+            } else {
+                console.error("Firebase config is not available.");
+            }
+        } catch (error) {
+            console.error("Firebase initialization error:", error);
+        }
+
+        // --- FRACTAL PARTICLE FLOW BACKGROUND ---
+        let scene, camera, renderer, clock, particles, dummy;
+        let mouse = new THREE.Vector2();
+
+        // Perlin Noise function for natural-looking randomness
+        const Permutation = [ 151,160,137,91,90,15,
+        131,13,201,95,96,53,194,233,7,225,140,36,103,30,69,142,8,99,37,240,21,10,23,
+        190, 6,148,247,120,234,75,0,26,197,62,94,252,219,203,117,35,11,32,57,177,33,
+        88,237,149,56,87,174,20,125,136,171,168, 68,175,74,165,71,134,139,48,27,166,
+        77,146,158,231,83,111,229,122,60,211,133,230,220,105,92,41,55,46,245,40,244,
+        102,143,54, 65,25,63,161, 1,216,80,73,209,76,132,187,208, 89,18,169,200,196,
+        135,130,116,188,159,86,164,100,109,198,173,186, 3,64,52,217,226,250,124,123,
+        5,202,38,147,118,126,255,82,85,212,207,206,59,227,47,16,58,17,182,189,28,42,
+        223,14,70,24,141,81,221,153,249,204,34,145,167,106,127,152,192,184,179,155,
+        172,138,2,107,253,113,112,49,12,61,191,185,163,243,183,193,128,114,213,44,
+        121,154,236,178,238,162,156,218,242,19,51,78,214,248,157,215,199,22,110,4,
+        150,224,98,210,104,31,180,129,205,235,176,79,119,39,29,170,50,45,246,254,
+        97,251,9,144,101,115,222,40,244,102,143,54, 65,25,63,161, 1,216,80,73,209,
+        76,132,187,208, 89,18,169,200,196,135,130,116,188,159,86,164,100,109,198,
+        173,186, 3,64,52,217,226,250,124,123,5,202,38,147,118,126,255,82,85,212,
+        207,206,59,227,47,16,58,17,182,189,28,42,223,14,70,24,141,81,221,153,
+        249,204,34,145,167,106,127,152,192,184,179,155,172,138,2,107,253,113,
+        112,49,12,61,191,185,163,243,183,193,128,114,213,44,121,154,236,178,
+        238,162,156,218,242,19,51,78,214,248,157,215,199,22,110,4,150,224,
+        98,210,104,31,180,129,205,235,176,79,119,39,29,170,50,45,246,254,97,
+        251,9,144,101,115,222];
+
+        const p = new Array(512).fill(0).map((_, i) => Permutation[i % 256]);
+
+        function fade(t) { return t * t * t * (t * (t * 6 - 15) + 10); }
+        function lerp(t, a, b) { return a + t * (b - a); }
+        function grad(hash, x, y, z) {
+            const h = hash & 15;
+            const u = h < 8 ? x : y;
+            const v = h < 4 ? y : h === 12 || h === 14 ? x : z;
+            return ((h & 1) === 0 ? u : -u) + ((h & 2) === 0 ? v : -v);
+        }
+
+        function noise(x, y, z) {
+            const X = Math.floor(x) & 255;
+            const Y = Math.floor(y) & 255;
+            const Z = Math.floor(z) & 255;
+            x -= Math.floor(x);
+            y -= Math.floor(y);
+            z -= Math.floor(z);
+            const u = fade(x);
+            const v = fade(y);
+            const w = fade(z);
+            const A = p[X] + Y, AA = p[A] + Z, AB = p[A + 1] + Z;
+            const B = p[X + 1] + Y, BA = p[B] + Z, BB = p[B + 1] + Z;
+            return lerp(w, lerp(v, lerp(u, grad(p[AA], x, y, z), grad(p[BA], x - 1, y, z)),
+                                  lerp(u, grad(p[AB], x, y - 1, z), grad(p[BB], x - 1, y - 1, z))),
+                           lerp(v, lerp(u, grad(p[AA + 1], x, y, z - 1), grad(p[BA + 1], x - 1, y, z - 1)),
+                                  lerp(u, grad(p[AB + 1], x, y - 1, z - 1), grad(p[BB + 1], x - 1, y - 1, z - 1))));
+        }
+
+
+        function initFractalBackground() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 5;
+            clock = new THREE.Clock();
+
+            const canvas = document.getElementById('bg-canvas');
+            renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+
+            const count = 2000;
+            const geometry = new THREE.IcosahedronGeometry(0.01, 1);
+            const material = new THREE.MeshBasicMaterial({ color: '#A8E063' });
+
+            particles = new THREE.InstancedMesh(geometry, material, count);
+            dummy = new THREE.Object3D();
+            
+            for(let i = 0; i < count; i++) {
+                dummy.position.set(
+                    (Math.random() - 0.5) * 10,
+                    (Math.random() - 0.5) * 10,
+                    (Math.random() - 0.5) * 10
+                );
+                dummy.updateMatrix();
+                particles.setMatrixAt(i, dummy.matrix);
+            }
+            particles.instanceMatrix.needsUpdate = true;
+
+            scene.add(particles);
+
+            window.addEventListener('resize', onWindowResize, false);
+            document.addEventListener('mousemove', onMouseMove, false);
+            animateFractal();
+        }
+
+        function onMouseMove(event) {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        }
+
+        function animateFractal() {
+            requestAnimationFrame(animateFractal);
+            const elapsedTime = clock.getElapsedTime();
+
+            for(let i = 0; i < particles.count; i++) {
+                particles.getMatrixAt(i, dummy.matrix);
+                dummy.matrix.decompose(dummy.position, dummy.quaternion, dummy.scale);
+                
+                const time = elapsedTime * 0.2;
+                const noiseScale = 1;
+                const speed = 0.005;
+
+                let nx = dummy.position.x * noiseScale + time;
+                let ny = dummy.position.y * noiseScale + time;
+                let nz = dummy.position.z * noiseScale + time;
+
+                let dx = noise(nx, ny, nz);
+                let dy = noise(ny, nz, nx);
+                let dz = noise(nz, nx, ny);
+
+                dummy.position.x += dx * speed;
+                dummy.position.y += dy * speed;
+                dummy.position.z += dz * speed;
+
+                // Mouse interaction
+                const mouseForce = 0.05;
+                const mouseEffectRadius = 2;
+                const mouseVector = new THREE.Vector3(mouse.x * (window.innerWidth / window.innerHeight) * 5, mouse.y * 5, 0);
+                const distance = dummy.position.distanceTo(mouseVector);
+                if (distance < mouseEffectRadius) {
+                    const force = (mouseEffectRadius - distance) * mouseForce;
+                    dummy.position.add(dummy.position.clone().sub(mouseVector).normalize().multiplyScalar(force));
+                }
+
+                // Boundary check
+                if(dummy.position.length() > 6) {
+                    dummy.position.set(
+                        (Math.random() - 0.5) * 10,
+                        (Math.random() - 0.5) * 10,
+                        (Math.random() - 0.5) * 10
+                    );
+                }
+
+                dummy.updateMatrix();
+                particles.setMatrixAt(i, dummy.matrix);
+            }
+            particles.instanceMatrix.needsUpdate = true;
+            
+            renderer.render(scene, camera);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        // --- MOBILE MENU ---
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const closeMobileMenuButton = document.getElementById('close-mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+
+        mobileMenuButton.addEventListener('click', () => { mobileMenu.classList.remove('hidden'); });
+        closeMobileMenuButton.addEventListener('click', () => { mobileMenu.classList.add('hidden'); });
+        mobileNavLinks.forEach(link => {
+            link.addEventListener('click', () => { mobileMenu.classList.add('hidden'); });
+        });
+
+        // --- SCROLL ANIMATIONS ---
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.scroll-animate').forEach(el => { observer.observe(el); });
+        
+        // --- CONTACT FORM SUBMISSION ---
+        const contactForm = document.getElementById('contact-form');
+        const formStatus = document.getElementById('form-status');
+
+        contactForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!db) {
+                formStatus.textContent = "Error: Database not connected.";
+                formStatus.style.color = 'red';
+                return;
+            }
+            const name = contactForm.name.value, email = contactForm.email.value, message = contactForm.message.value;
+            formStatus.textContent = 'Sending...';
+            formStatus.style.color = '#A8E063';
+            try {
+                const contactsCollection = collection(db, `/artifacts/${appId}/public/data/contacts`);
+                await addDoc(contactsCollection, { name, email, message, submittedAt: new Date() });
+                formStatus.textContent = "Message sent successfully! We'll be in touch.";
+                formStatus.style.color = '#56AB2F';
+                contactForm.reset();
+            } catch (error) {
+                console.error("Error adding document: ", error);
+                formStatus.textContent = "Something went wrong. Please try again later.";
+                formStatus.style.color = 'red';
+            }
+        });
+
+        // --- INITIALIZE ALL SCRIPTS ---
+        initFractalBackground();
+        lucide.createIcons();
+    </script>
+</body>
+</html>
