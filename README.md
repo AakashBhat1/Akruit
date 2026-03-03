@@ -45,7 +45,7 @@ Used during the pre-launch phase.
 
 ---
 
-### 2. Main Website (`k.html`)
+### 2. Main Website (`index.html`)
 Production-ready business website.
 
 **Features:**
