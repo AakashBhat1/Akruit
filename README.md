@@ -69,30 +69,7 @@ Production-ready business website.
   - Authentication (anonymous auth)
 - **Lottie** – Preloader animation
 - **tsParticles** – Particle background effects
-
----
-
-## ⚙️ How to Use
-
-### Pre-Launch Mode (Current Setup)
-- `index.html` → Coming Soon page
-- `k.html` → Main website (not live yet)
-
-### Production Mode
-1. Rename `k.html` to `index.html`
-2. Optionally rename the coming soon page to `coming-soon.html`
-3. Deploy to Netlify, Vercel, or any static hosting provider
-
----
-
-## 🔒 Notes on Firebase
-
-- Firebase configuration is included for frontend demonstration.
-- For real production use, sensitive keys should be handled using environment variables and security rules.
-- Firestore is used only for basic form submissions.
-
----
-
+- 
 ## 📈 Future Improvements
 
 - SEO optimization and meta tags
